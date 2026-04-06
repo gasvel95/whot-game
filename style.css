@@ -1,0 +1,120 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1a6e3c;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+#app {
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+}
+
+h1 { font-size: 2.5rem; margin-bottom: 12px; text-shadow: 2px 2px 4px #000; }
+
+#info {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  padding: 8px;
+  margin-bottom: 16px;
+  font-size: 1rem;
+}
+
+#pile-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.card {
+  width: 80px;
+  height: 110px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 3px solid #fff;
+  transition: transform 0.15s;
+  user-select: none;
+  color: #222;
+  background: #fff;
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+.card:hover { transform: scale(1.08); }
+
+.card .shape { font-size: 1.4rem; }
+.card .number { font-size: 1.6rem; font-weight: 900; }
+
+.card.circle   { background: #fff9c4; }
+.card.triangle { background: #c8e6c9; }
+.card.cross    { background: #ffccbc; }
+.card.square   { background: #bbdefb; }
+.card.star     { background: #e1bee7; }
+.card.whot     { background: linear-gradient(135deg,#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0); color:#fff; }
+
+.card.playable { border-color: #ffe500; box-shadow: 0 0 12px #ffe500; }
+
+.btn {
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #ff6f00;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+.btn:hover { background: #e65100; }
+.btn:disabled { background: #777; cursor: not-allowed; }
+
+.hand {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 130px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+#message {
+  font-size: 1.2rem;
+  min-height: 1.5rem;
+  margin-bottom: 10px;
+  color: #ffe500;
+  font-weight: bold;
+}
+
+#call-no-area {
+  background: rgba(0,0,0,0.5);
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+#call-no-btns { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+#turn-label {
+  font-weight: bold;
+  color: #ffe500;
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Whot Card Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <h1>🃏 Whot!</h1>
+    <div id="info">
+      <span id="cpu-count">CPU: 0 cartas</span>
+      <span id="deck-count">Mazo: 0</span>
+      <span id="turn-label">Tu turno</span>
+    </div>
+    <div id="pile-area">
+      <div id="top-card" class="card"></div>
+      <div id="draw-btn" class="btn">Robar carta</div>
+    </div>
+    <div id="call-no-area" style="display:none">
+      <p>¡Whot! Elige figura para llamar:</p>
+      <div id="call-no-btns"></div>
+    </div>
+    <div id="player-hand" class="hand"></div>
+    <div id="message"></div>
+    <button id="restart-btn" class="btn" style="display:none">🔄 Nueva partida</button>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
