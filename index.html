@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,25 +7,96 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-    <h1>🃏 Whot!</h1>
-    <div id="info">
-      <span id="cpu-count">CPU: 0 cartas</span>
-      <span id="deck-count">Mazo: 0</span>
-      <span id="turn-label">Tu turno</span>
+
+  <!-- ========== START SCREEN ========== -->
+  <div id="start-screen">
+    <div id="start-box">
+      <h1>🃏 Whot!</h1>
+      <p class="start-subtitle">The classic Nigerian card game</p>
+
+      <div class="section-label">Choose Difficulty</div>
+      <div id="start-difficulty" class="difficulty-group">
+        <button class="diff-btn" data-diff="easy">🟢 Easy</button>
+        <button class="diff-btn active" data-diff="medium">🟡 Medium</button>
+        <button class="diff-btn" data-diff="hard">🔴 Hard</button>
+      </div>
+
+      <button id="start-btn" class="btn primary-btn">▶ Start Game</button>
+      <button id="start-rules-btn" class="btn ghost-btn">📖 How to Play</button>
     </div>
+  </div>
+
+  <!-- ========== GAME SCREEN ========== -->
+  <div id="app" style="display:none">
+    <h1>🃏 Whot!</h1>
+
+    <div id="info">
+      <span id="cpu-count">CPU: 0 cards</span>
+      <span id="deck-count">Deck: 0</span>
+      <span id="turn-label">Your turn</span>
+      <span id="diff-badge">🟡 Medium</span>
+    </div>
+
+    <div id="action-bar">
+      <div id="game-difficulty" class="difficulty-group small">
+        <button class="diff-btn" data-diff="easy">🟢 Easy</button>
+        <button class="diff-btn active" data-diff="medium">🟡 Medium</button>
+        <button class="diff-btn" data-diff="hard">🔴 Hard</button>
+      </div>
+      <button id="rules-btn" class="btn ghost-btn small-btn">📖 Rules</button>
+    </div>
+
     <div id="pile-area">
       <div id="top-card" class="card"></div>
-      <div id="draw-btn" class="btn">Robar carta</div>
+      <button id="draw-btn" class="btn">Draw Card</button>
     </div>
+
     <div id="call-no-area" style="display:none">
-      <p>¡Whot! Elige figura para llamar:</p>
+      <p>WHOT! Choose a shape to call:</p>
       <div id="call-no-btns"></div>
     </div>
+
     <div id="player-hand" class="hand"></div>
     <div id="message"></div>
-    <button id="restart-btn" class="btn" style="display:none">🔄 Nueva partida</button>
+
+    <div id="end-actions" style="display:none">
+      <button id="restart-btn" class="btn primary-btn">🔄 Play Again</button>
+    </div>
   </div>
+
+  <!-- ========== RULES MODAL ========== -->
+  <div id="rules-modal" class="modal-backdrop" style="display:none">
+    <div class="modal-box">
+      <button id="close-rules" class="modal-close">✕</button>
+      <h2>📖 How to Play Whot</h2>
+
+      <h3>Objective</h3>
+      <p>Be the first player to play all your cards.</p>
+
+      <h3>On Your Turn</h3>
+      <ul>
+        <li>Play a card that matches the <strong>shape</strong> OR <strong>number</strong> of the top card on the pile.</li>
+        <li>If you can't play, draw a card from the deck. You may then play the drawn card if it matches.</li>
+      </ul>
+
+      <h3>Special Cards</h3>
+      <ul>
+        <li><strong>WHOT (20):</strong> Wild card. Play on anything and call a shape for the next player to match.</li>
+        <li><strong>Hold On (1):</strong> You get to play again immediately.</li>
+        <li><strong>Pick Two (5):</strong> Your opponent must draw 2 cards.</li>
+        <li><strong>Suspension (8):</strong> Your opponent loses their next turn, and you play again.</li>
+        <li><strong>General Market (14):</strong> Your opponent must draw 1 card.</li>
+      </ul>
+
+      <h3>Tips</h3>
+      <ul>
+        <li>Highlighted cards (gold border) in your hand are playable.</li>
+        <li>Click a card to play it.</li>
+        <li>Click <strong>Draw Card</strong> if you have no playable cards.</li>
+      </ul>
+    </div>
+  </div>
+
   <script src="game.js"></script>
 </body>
 </html>

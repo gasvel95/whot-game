@@ -4,7 +4,7 @@
 
 const SHAPES = ['circle', 'triangle', 'cross', 'square', 'star'];
 const SHAPE_ICONS = { circle: '⭕', triangle: '🔺', cross: '✚', square: '🟦', star: '⭐', whot: '🌈' };
-const SHAPE_LABELS = { circle: 'Círculo', triangle: 'Triángulo', cross: 'Cruz', square: 'Cuadrado', star: 'Estrella', whot: 'WHOT' };
+const SHAPE_LABELS = { circle: 'Circle', triangle: 'Triangle', cross: 'Cross', square: 'Square', star: 'Star', whot: 'WHOT' };
 
 const NUMS = [1,2,3,3,4,4,5,5,5,7,7,8,8,10,10,11,11,12,12,13,13,14,14];
 
@@ -14,6 +14,9 @@ const PICK_TWO       = 5;
 const SUSPENSION     = 8;
 const GENERAL_MARKET = 14;
 
+const DIFF_LABELS = { easy: '🟢 Easy', medium: '🟡 Medium', hard: '🔴 Hard' };
+
+// ---- Deck ----
 function buildDeck() {
   const deck = [];
   SHAPES.forEach(shape => {
@@ -31,8 +34,11 @@ function shuffle(arr) {
   return arr;
 }
 
+// ---- Game state ----
 let deck, playerHand, cpuHand, pile, topCard, playerTurn, calledShape, gameOver, waitingCallNo;
+let difficulty = 'medium';
 
+// ---- Init ----
 function initGame() {
   deck = shuffle(buildDeck());
   playerHand = [];
@@ -48,15 +54,24 @@ function initGame() {
   }
 
   let starter;
-  do { starter = deck.pop(); } while (starter.num === WHOT_CARD || starter.num === HOLD_ON || starter.num === PICK_TWO || starter.num === GENERAL_MARKET);
+  do { starter = deck.pop(); } while (
+    starter.num === WHOT_CARD ||
+    starter.num === HOLD_ON ||
+    starter.num === PICK_TWO ||
+    starter.num === GENERAL_MARKET
+  );
   pile.push(starter);
   topCard = starter;
   playerTurn = true;
 
+  document.getElementById('end-actions').style.display = 'none';
+  document.getElementById('call-no-area').style.display = 'none';
+  syncDifficultyButtons();
   renderGame();
-  setMessage('¡Tu turno! Juega una carta.');
+  setMessage("Your turn! Play a card.");
 }
 
+// ---- Card logic ----
 function cardCanPlay(card) {
   const effective = calledShape || topCard.shape;
   if (card.shape === 'whot') return true;
@@ -67,7 +82,7 @@ function cardCanPlay(card) {
 
 function cardHTML(card, idx, isPlayer) {
   const div = document.createElement('div');
-  div.className = `card ${card.shape}`;
+  div.className = 'card ' + card.shape;
   if (isPlayer && cardCanPlay(card)) div.classList.add('playable');
 
   const shapeSpan = document.createElement('div');
@@ -88,25 +103,27 @@ function cardHTML(card, idx, isPlayer) {
 
   if (isPlayer) {
     div.addEventListener('click', () => playerPlayCard(idx));
-    div.title = `${SHAPE_LABELS[card.shape]} ${card.shape === 'whot' ? '' : card.num}`;
+    div.title = SHAPE_LABELS[card.shape] + (card.shape === 'whot' ? '' : ' ' + card.num);
   }
   return div;
 }
 
 function renderTopCard() {
   const tc = document.getElementById('top-card');
-  tc.className = `card ${topCard.shape}`;
+  tc.className = 'card ' + topCard.shape;
   tc.innerHTML = '';
   const s = document.createElement('div'); s.className = 'shape'; s.textContent = SHAPE_ICONS[topCard.shape];
   const n = document.createElement('div'); n.className = 'number'; n.textContent = topCard.shape === 'whot' ? 'WHOT' : topCard.num;
-  const l = document.createElement('div'); l.style.fontSize = '0.7rem'; l.textContent = calledShape ? `→ ${SHAPE_LABELS[calledShape]}` : SHAPE_LABELS[topCard.shape];
+  const l = document.createElement('div'); l.style.fontSize = '0.7rem';
+  l.textContent = calledShape ? ('-> ' + SHAPE_LABELS[calledShape]) : SHAPE_LABELS[topCard.shape];
   tc.appendChild(s); tc.appendChild(n); tc.appendChild(l);
 }
 
 function renderGame() {
-  document.getElementById('cpu-count').textContent = `CPU: ${cpuHand.length} cartas`;
-  document.getElementById('deck-count').textContent = `Mazo: ${deck.length}`;
-  document.getElementById('turn-label').textContent = playerTurn ? '🟡 Tu turno' : '🔴 Turno CPU';
+  document.getElementById('cpu-count').textContent = 'CPU: ' + cpuHand.length + ' card' + (cpuHand.length !== 1 ? 's' : '');
+  document.getElementById('deck-count').textContent = 'Deck: ' + deck.length;
+  document.getElementById('turn-label').textContent = playerTurn ? '🟡 Your turn' : "🔴 CPU's turn";
+  document.getElementById('diff-badge').textContent = DIFF_LABELS[difficulty];
 
   renderTopCard();
 
@@ -115,17 +132,17 @@ function renderGame() {
   playerHand.forEach((card, idx) => handDiv.appendChild(cardHTML(card, idx, true)));
 
   document.getElementById('draw-btn').disabled = !playerTurn || gameOver;
-  document.getElementById('restart-btn').style.display = gameOver ? 'inline-block' : 'none';
 }
 
 function setMessage(msg) {
   document.getElementById('message').textContent = msg;
 }
 
+// ---- Player actions ----
 function playerPlayCard(idx) {
   if (!playerTurn || gameOver || waitingCallNo) return;
   const card = playerHand[idx];
-  if (!cardCanPlay(card)) { setMessage('⚠️ Esa carta no puede jugarse ahora.'); return; }
+  if (!cardCanPlay(card)) { setMessage('That card cannot be played now.'); return; }
   playerHand.splice(idx, 1);
   applyCard(card, 'player');
 }
@@ -140,9 +157,9 @@ function applyCard(card, who) {
 
   if (hand.length === 0) {
     renderGame();
-    setMessage(who === 'player' ? '🎉 ¡Ganaste! ¡Whot!' : '😢 ¡La CPU ganó! Inténtalo de nuevo.');
+    setMessage(who === 'player' ? 'You win! Whot!' : 'CPU wins! Better luck next time.');
     gameOver = true;
-    document.getElementById('restart-btn').style.display = 'inline-block';
+    document.getElementById('end-actions').style.display = 'block';
     return;
   }
 
@@ -153,26 +170,26 @@ function applyCard(card, who) {
       return;
     } else {
       calledShape = cpuPickShape();
-      setMessage(`CPU juega WHOT y llama: ${SHAPE_LABELS[calledShape]}`);
+      setMessage('CPU plays WHOT and calls: ' + SHAPE_LABELS[calledShape]);
     }
   } else if (card.num === HOLD_ON) {
-    setMessage(who === 'player' ? '🔁 ¡Hold On! Juegas de nuevo.' : '🔁 CPU Hold On, vuelve a jugar.');
+    setMessage(who === 'player' ? 'Hold On! Play again.' : 'CPU plays Hold On and goes again.');
     renderGame();
     if (who === 'cpu') { setTimeout(cpuTurn, 800); return; }
     return;
   } else if (card.num === PICK_TWO) {
     drawCards(opponent, 2);
-    setMessage(who === 'player' ? '✌️ CPU roba 2 cartas.' : '✌️ Robas 2 cartas.');
+    setMessage(who === 'player' ? 'CPU draws 2 cards.' : 'Pick Two! You draw 2 cards.');
   } else if (card.num === GENERAL_MARKET) {
     drawCards(opponent, 1);
-    setMessage(who === 'player' ? '🛒 Mercado general: CPU roba 1.' : '🛒 Mercado general: Robas 1.');
+    setMessage(who === 'player' ? 'General Market: CPU draws 1.' : 'General Market: You draw 1 card.');
   } else if (card.num === SUSPENSION) {
-    setMessage(who === 'player' ? '🚫 CPU suspendida, juegas de nuevo.' : '🚫 Suspendido, CPU juega de nuevo.');
+    setMessage(who === 'player' ? 'CPU is suspended. Play again!' : 'Suspension! CPU plays again.');
     renderGame();
     if (who === 'cpu') { setTimeout(cpuTurn, 800); return; }
     return;
   } else {
-    setMessage(who === 'player' ? 'Buen movimiento. Turno de la CPU.' : 'CPU jugó. Tu turno.');
+    setMessage(who === 'player' ? "Nice move! CPU's turn." : 'CPU played. Your turn.');
   }
 
   playerTurn = (who === 'cpu');
@@ -194,9 +211,10 @@ function reshufflePile() {
   const top = pile.pop();
   deck = shuffle(pile);
   pile = [top];
-  setMessage('♻️ Mazo rearmado desde la pila.');
+  setMessage('Deck reshuffled from pile.');
 }
 
+// ---- WHOT shape call UI ----
 function showCallNo() {
   const area = document.getElementById('call-no-area');
   const btns = document.getElementById('call-no-btns');
@@ -205,13 +223,13 @@ function showCallNo() {
   SHAPES.forEach(shape => {
     const b = document.createElement('button');
     b.className = 'btn';
-    b.textContent = `${SHAPE_ICONS[shape]} ${SHAPE_LABELS[shape]}`;
+    b.textContent = SHAPE_ICONS[shape] + ' ' + SHAPE_LABELS[shape];
     b.style.background = '#1565c0';
     b.addEventListener('click', () => {
       calledShape = shape;
       area.style.display = 'none';
       waitingCallNo = false;
-      setMessage(`Llamaste: ${SHAPE_LABELS[shape]}. Turno de la CPU.`);
+      setMessage('You called: ' + SHAPE_LABELS[shape] + ". CPU's turn.");
       playerTurn = false;
       renderGame();
       setTimeout(cpuTurn, 900);
@@ -220,10 +238,22 @@ function showCallNo() {
   });
 }
 
+// ========== CPU LOGIC ==========
+
 function cpuPickShape() {
   const counts = {};
-  SHAPES.forEach(s => counts[s] = 0);
+  SHAPES.forEach(s => { counts[s] = 0; });
   cpuHand.forEach(c => { if (counts[c.shape] !== undefined) counts[c.shape]++; });
+
+  if (difficulty === 'hard') {
+    const playerCounts = {};
+    SHAPES.forEach(s => { playerCounts[s] = 0; });
+    playerHand.forEach(c => { if (playerCounts[c.shape] !== undefined) playerCounts[c.shape]++; });
+    return SHAPES.reduce((best, s) =>
+      (counts[s] * 2 - playerCounts[s]) >= (counts[best] * 2 - playerCounts[best]) ? s : best
+    );
+  }
+
   return SHAPES.reduce((a, b) => counts[a] >= counts[b] ? a : b);
 }
 
@@ -233,32 +263,109 @@ function cpuTurn() {
 
   if (playable.length === 0) {
     drawCards('cpu', 1);
-    setMessage('CPU no pudo jugar y robó una carta. Tu turno.');
+    const drawn = cpuHand[cpuHand.length - 1];
+
+    if (difficulty === 'hard' && drawn && cardCanPlay(drawn)) {
+      cpuHand.splice(cpuHand.length - 1, 1);
+      setMessage('CPU drew a card and plays it: ' + SHAPE_LABELS[drawn.shape] + (drawn.shape === 'whot' ? '' : ' ' + drawn.num));
+      applyCard(drawn, 'cpu');
+      return;
+    }
+
+    setMessage('CPU drew a card. Your turn.');
     playerTurn = true;
     renderGame();
     return;
   }
 
-  const priority = (card) => {
-    if (card.num === WHOT_CARD)      return 5;
-    if (card.num === SUSPENSION)     return 4;
-    if (card.num === PICK_TWO)       return 3;
-    if (card.num === HOLD_ON)        return 2;
-    if (card.num === GENERAL_MARKET) return 1;
-    return 0;
-  };
+  let chosen;
 
-  playable.sort((a, b) => priority(b.c) - priority(a.c));
-  const chosen = playable[0];
+  if (difficulty === 'easy') {
+    chosen = playable[Math.floor(Math.random() * playable.length)];
+  } else if (difficulty === 'medium') {
+    const priority = (card) => {
+      if (card.num === WHOT_CARD)      return 5;
+      if (card.num === SUSPENSION)     return 4;
+      if (card.num === PICK_TWO)       return 3;
+      if (card.num === HOLD_ON)        return 2;
+      if (card.num === GENERAL_MARKET) return 1;
+      return 0;
+    };
+    playable.sort((a, b) => priority(b.c) - priority(a.c));
+    chosen = playable[0];
+  } else {
+    const priorityHard = (card) => {
+      if (card.num === WHOT_CARD)      return 10;
+      if (card.num === SUSPENSION)     return 9;
+      if (card.num === PICK_TWO)       return 8;
+      if (card.num === HOLD_ON)        return 7;
+      if (card.num === GENERAL_MARKET) return 6;
+      return 0;
+    };
+
+    const shapeCounts = {};
+    SHAPES.forEach(s => { shapeCounts[s] = 0; });
+    cpuHand.forEach(c => { if (shapeCounts[c.shape] !== undefined) shapeCounts[c.shape]++; });
+
+    const scoreHard = ({ c }) => {
+      const p = priorityHard(c);
+      if (p > 0) return p * 100;
+      return shapeCounts[c.shape] || 0;
+    };
+
+    playable.sort((a, b) => scoreHard(b) - scoreHard(a));
+    chosen = playable[0];
+  }
+
   cpuHand.splice(chosen.i, 1);
-  setMessage(`CPU jugó: ${SHAPE_LABELS[chosen.c.shape]} ${chosen.c.shape === 'whot' ? '' : chosen.c.num}`);
+  const cardName = SHAPE_LABELS[chosen.c.shape] + (chosen.c.shape === 'whot' ? '' : ' ' + chosen.c.num);
+  setMessage('CPU played: ' + cardName);
   applyCard(chosen.c, 'cpu');
 }
+
+// ========== DIFFICULTY ==========
+function syncDifficultyButtons() {
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.diff === difficulty);
+  });
+  const badge = document.getElementById('diff-badge');
+  if (badge) badge.textContent = DIFF_LABELS[difficulty];
+}
+
+function setDifficulty(level) {
+  difficulty = level;
+  syncDifficultyButtons();
+}
+
+// ========== EVENT LISTENERS ==========
+
+document.querySelectorAll('#start-difficulty .diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => setDifficulty(btn.dataset.diff));
+});
+
+document.querySelectorAll('#game-difficulty .diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setDifficulty(btn.dataset.diff);
+    initGame();
+  });
+});
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initGame();
+});
 
 document.getElementById('draw-btn').addEventListener('click', () => {
   if (!playerTurn || gameOver) return;
   drawCards('player', 1);
-  setMessage('Robaste una carta. Turno de la CPU.');
+  const drawn = playerHand[playerHand.length - 1];
+  if (drawn && cardCanPlay(drawn)) {
+    setMessage('You drew a card. You may play it if it matches!');
+    renderGame();
+    return;
+  }
+  setMessage("You drew a card — no match. CPU's turn.");
   playerTurn = false;
   renderGame();
   setTimeout(cpuTurn, 900);
@@ -266,4 +373,24 @@ document.getElementById('draw-btn').addEventListener('click', () => {
 
 document.getElementById('restart-btn').addEventListener('click', initGame);
 
-initGame();
+document.getElementById('rules-btn').addEventListener('click', () => {
+  document.getElementById('rules-modal').style.display = 'flex';
+});
+
+document.getElementById('start-rules-btn').addEventListener('click', () => {
+  document.getElementById('rules-modal').style.display = 'flex';
+});
+
+document.getElementById('close-rules').addEventListener('click', () => {
+  document.getElementById('rules-modal').style.display = 'none';
+});
+
+document.getElementById('rules-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('rules-modal')) {
+    document.getElementById('rules-modal').style.display = 'none';
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') document.getElementById('rules-modal').style.display = 'none';
+});
