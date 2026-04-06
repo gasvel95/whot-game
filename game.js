@@ -8,12 +8,18 @@ const SHAPE_LABELS = { circle: 'Círculo', triangle: 'Triángulo', cross: 'Cruz'
 
 const NUMS = [1,2,3,3,4,4,5,5,5,7,7,8,8,10,10,11,11,12,12,13,13,14,14];
 
+const WHOT_CARD      = 20;
+const HOLD_ON        = 1;
+const PICK_TWO       = 5;
+const SUSPENSION     = 8;
+const GENERAL_MARKET = 14;
+
 function buildDeck() {
   const deck = [];
   SHAPES.forEach(shape => {
     NUMS.forEach(num => deck.push({ shape, num }));
   });
-  for (let i = 0; i < 5; i++) deck.push({ shape: 'whot', num: 20 });
+  for (let i = 0; i < 5; i++) deck.push({ shape: 'whot', num: WHOT_CARD });
   return deck;
 }
 
@@ -42,7 +48,7 @@ function initGame() {
   }
 
   let starter;
-  do { starter = deck.pop(); } while (starter.num === 20 || starter.num === 1 || starter.num === 5 || starter.num === 14);
+  do { starter = deck.pop(); } while (starter.num === WHOT_CARD || starter.num === HOLD_ON || starter.num === PICK_TWO || starter.num === GENERAL_MARKET);
   pile.push(starter);
   topCard = starter;
   playerTurn = true;
@@ -140,7 +146,7 @@ function applyCard(card, who) {
     return;
   }
 
-  if (card.num === 20) {
+  if (card.num === WHOT_CARD) {
     if (who === 'player') {
       waitingCallNo = true;
       showCallNo();
@@ -149,18 +155,18 @@ function applyCard(card, who) {
       calledShape = cpuPickShape();
       setMessage(`CPU juega WHOT y llama: ${SHAPE_LABELS[calledShape]}`);
     }
-  } else if (card.num === 1) {
+  } else if (card.num === HOLD_ON) {
     setMessage(who === 'player' ? '🔁 ¡Hold On! Juegas de nuevo.' : '🔁 CPU Hold On, vuelve a jugar.');
     renderGame();
     if (who === 'cpu') { setTimeout(cpuTurn, 800); return; }
     return;
-  } else if (card.num === 5) {
+  } else if (card.num === PICK_TWO) {
     drawCards(opponent, 2);
     setMessage(who === 'player' ? '✌️ CPU roba 2 cartas.' : '✌️ Robas 2 cartas.');
-  } else if (card.num === 14) {
+  } else if (card.num === GENERAL_MARKET) {
     drawCards(opponent, 1);
     setMessage(who === 'player' ? '🛒 Mercado general: CPU roba 1.' : '🛒 Mercado general: Robas 1.');
-  } else if (card.num === 8) {
+  } else if (card.num === SUSPENSION) {
     setMessage(who === 'player' ? '🚫 CPU suspendida, juegas de nuevo.' : '🚫 Suspendido, CPU juega de nuevo.');
     renderGame();
     if (who === 'cpu') { setTimeout(cpuTurn, 800); return; }
@@ -234,11 +240,11 @@ function cpuTurn() {
   }
 
   const priority = (card) => {
-    if (card.num === 20) return 5;
-    if (card.num === 8) return 4;
-    if (card.num === 5) return 3;
-    if (card.num === 1) return 2;
-    if (card.num === 14) return 1;
+    if (card.num === WHOT_CARD)      return 5;
+    if (card.num === SUSPENSION)     return 4;
+    if (card.num === PICK_TWO)       return 3;
+    if (card.num === HOLD_ON)        return 2;
+    if (card.num === GENERAL_MARKET) return 1;
     return 0;
   };
 
