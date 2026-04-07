@@ -172,35 +172,66 @@ h1 { font-size: 2.5rem; margin-bottom: 12px; text-shadow: 2px 2px 4px #000; }
   width: 80px;
   height: 110px;
   border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: bold;
   cursor: pointer;
   border: 3px solid #fff;
   transition: transform 0.15s;
   user-select: none;
-  color: #222;
-  background: #fff;
+  background-color: #fff;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
   box-shadow: 2px 4px 8px rgba(0,0,0,0.4);
   position: relative;
 }
 
 .card:hover { transform: scale(1.08); }
 
-.card .shape { font-size: 1.4rem; }
-.card .number { font-size: 1.6rem; font-weight: 900; }
-
-.card.circle   { background: #fff9c4; }
-.card.triangle { background: #c8e6c9; }
-.card.cross    { background: #ffccbc; }
-.card.square   { background: #bbdefb; }
-.card.star     { background: #e1bee7; }
-.card.whot     { background: linear-gradient(135deg,#f44336,#ff9800,#ffeb3b,#4caf50,#2196f3,#9c27b0); color:#fff; }
+.card.circle   { background-image: url('resources/circle.png'); }
+.card.triangle { background-image: url('resources/triangle.png'); }
+.card.cross    { background-image: url('resources/cross.png'); }
+.card.square   { background-image: url('resources/square.png'); }
+.card.star     { background-image: url('resources/star.png'); }
+.card.whot     { background-image: url('resources/whot.png'); }
 
 .card.playable { border-color: #ffe500; box-shadow: 0 0 12px #ffe500; }
+
+.card-corner {
+  position: absolute;
+  font-size: 0.75rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #111;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff;
+}
+
+.card-corner.top-left {
+  top: 4px;
+  left: 5px;
+}
+
+.card-corner.bottom-right {
+  bottom: 4px;
+  right: 5px;
+  transform: rotate(180deg);
+}
+
+.card.whot .card-corner {
+  color: #fff;
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+}
+
+.card-called {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #1565c0;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff;
+  pointer-events: none;
+}
 
 /* ========== HAND ========== */
 .hand {
