@@ -85,21 +85,18 @@ function cardHTML(card, idx, isPlayer) {
   div.className = 'card ' + card.shape;
   if (isPlayer && cardCanPlay(card)) div.classList.add('playable');
 
-  const shapeSpan = document.createElement('div');
-  shapeSpan.className = 'shape';
-  shapeSpan.textContent = SHAPE_ICONS[card.shape];
+  const numText = card.shape === 'whot' ? 'WHOT' : card.num;
 
-  const numSpan = document.createElement('div');
-  numSpan.className = 'number';
-  numSpan.textContent = card.shape === 'whot' ? 'WHOT' : card.num;
+  const topLeft = document.createElement('div');
+  topLeft.className = 'card-corner top-left';
+  topLeft.textContent = numText;
 
-  const labelSpan = document.createElement('div');
-  labelSpan.style.fontSize = '0.7rem';
-  labelSpan.textContent = SHAPE_LABELS[card.shape];
+  const bottomRight = document.createElement('div');
+  bottomRight.className = 'card-corner bottom-right';
+  bottomRight.textContent = numText;
 
-  div.appendChild(shapeSpan);
-  div.appendChild(numSpan);
-  div.appendChild(labelSpan);
+  div.appendChild(topLeft);
+  div.appendChild(bottomRight);
 
   if (isPlayer) {
     div.addEventListener('click', () => playerPlayCard(idx));
@@ -112,11 +109,26 @@ function renderTopCard() {
   const tc = document.getElementById('top-card');
   tc.className = 'card ' + topCard.shape;
   tc.innerHTML = '';
-  const s = document.createElement('div'); s.className = 'shape'; s.textContent = SHAPE_ICONS[topCard.shape];
-  const n = document.createElement('div'); n.className = 'number'; n.textContent = topCard.shape === 'whot' ? 'WHOT' : topCard.num;
-  const l = document.createElement('div'); l.style.fontSize = '0.7rem';
-  l.textContent = calledShape ? ('-> ' + SHAPE_LABELS[calledShape]) : SHAPE_LABELS[topCard.shape];
-  tc.appendChild(s); tc.appendChild(n); tc.appendChild(l);
+
+  const numText = topCard.shape === 'whot' ? 'WHOT' : topCard.num;
+
+  const topLeft = document.createElement('div');
+  topLeft.className = 'card-corner top-left';
+  topLeft.textContent = numText;
+
+  const bottomRight = document.createElement('div');
+  bottomRight.className = 'card-corner bottom-right';
+  bottomRight.textContent = numText;
+
+  tc.appendChild(topLeft);
+  tc.appendChild(bottomRight);
+
+  if (calledShape) {
+    const called = document.createElement('div');
+    called.className = 'card-called';
+    called.textContent = '→ ' + SHAPE_LABELS[calledShape];
+    tc.appendChild(called);
+  }
 }
 
 function renderGame() {
