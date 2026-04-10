@@ -342,6 +342,7 @@ function cpuTurn() {
     setMessage('CPU drew a card. Your turn.');
     playerTurn = true;
     renderGame();
+    startTurnTimer();
     return;
   }
 
