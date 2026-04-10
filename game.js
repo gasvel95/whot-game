@@ -38,6 +38,55 @@ function shuffle(arr) {
 let deck, playerHand, cpuHand, pile, topCard, playerTurn, calledShape, gameOver, waitingCallNo;
 let difficulty = 'medium';
 
+// ---- Turn timer ----
+let turnTimer = null;
+let timerSeconds = 0;
+const TIMER_LIMITS = { medium: 30, hard: 15 };
+
+function startTurnTimer() {
+  stopTurnTimer();
+  if (!TIMER_LIMITS[difficulty] || !playerTurn || gameOver) return;
+  timerSeconds = TIMER_LIMITS[difficulty];
+  updateTimerDisplay();
+  turnTimer = setInterval(() => {
+    timerSeconds--;
+    updateTimerDisplay();
+    if (timerSeconds <= 0) {
+      stopTurnTimer();
+      autoDrawOnTimeout();
+    }
+  }, 1000);
+}
+
+function stopTurnTimer() {
+  if (turnTimer) {
+    clearInterval(turnTimer);
+    turnTimer = null;
+  }
+  timerSeconds = 0;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('turn-timer');
+  if (!el) return;
+  const show = TIMER_LIMITS[difficulty] && playerTurn && !gameOver && timerSeconds > 0;
+  el.style.display = show ? 'inline' : 'none';
+  if (show) {
+    el.textContent = '⏱ ' + timerSeconds + 's';
+    el.style.color = timerSeconds <= 5 ? '#ff4444' : '#ffe500';
+  }
+}
+
+function autoDrawOnTimeout() {
+  if (!playerTurn || gameOver || waitingCallNo) return;
+  drawCards('player', 1);
+  setMessage("Time's up! You drew a card. CPU's turn.");
+  playerTurn = false;
+  renderGame();
+  setTimeout(cpuTurn, 900);
+}
+
 // ---- Init ----
 function initGame() {
   deck = shuffle(buildDeck());
@@ -69,6 +118,7 @@ function initGame() {
   syncDifficultyButtons();
   renderGame();
   setMessage("Your turn! Play a card.");
+  startTurnTimer();
 }
 
 // ---- Card logic ----
@@ -83,7 +133,7 @@ function cardCanPlay(card) {
 function cardHTML(card, idx, isPlayer) {
   const div = document.createElement('div');
   div.className = 'card ' + card.shape;
-  if (isPlayer && cardCanPlay(card)) div.classList.add('playable');
+  if (isPlayer && cardCanPlay(card) && difficulty !== 'hard') div.classList.add('playable');
 
   const numText = card.shape === 'whot' ? 'WHOT' : card.num;
 
@@ -155,6 +205,7 @@ function playerPlayCard(idx) {
   if (!playerTurn || gameOver || waitingCallNo) return;
   const card = playerHand[idx];
   if (!cardCanPlay(card)) { setMessage('That card cannot be played now.'); return; }
+  stopTurnTimer();
   playerHand.splice(idx, 1);
   applyCard(card, 'player');
 }
@@ -171,6 +222,7 @@ function applyCard(card, who) {
     renderGame();
     setMessage(who === 'player' ? 'You win! Whot!' : 'CPU wins! Better luck next time.');
     gameOver = true;
+    stopTurnTimer();
     document.getElementById('end-actions').style.display = 'block';
     return;
   }
@@ -188,6 +240,7 @@ function applyCard(card, who) {
     setMessage(who === 'player' ? 'Hold On! Play again.' : 'CPU plays Hold On and goes again.');
     renderGame();
     if (who === 'cpu') { setTimeout(cpuTurn, 800); return; }
+    startTurnTimer();
     return;
   } else if (card.num === PICK_TWO) {
     drawCards(opponent, 2);
@@ -199,6 +252,7 @@ function applyCard(card, who) {
     setMessage(who === 'player' ? 'CPU is suspended. Play again!' : 'Suspension! CPU plays again.');
     renderGame();
     if (who === 'cpu') { setTimeout(cpuTurn, 800); return; }
+    startTurnTimer();
     return;
   } else {
     setMessage(who === 'player' ? "Nice move! CPU's turn." : 'CPU played. Your turn.');
@@ -206,6 +260,7 @@ function applyCard(card, who) {
 
   playerTurn = (who === 'cpu');
   renderGame();
+  if (playerTurn) startTurnTimer();
   if (!playerTurn && !gameOver) setTimeout(cpuTurn, 900);
 }
 
@@ -346,6 +401,7 @@ function syncDifficultyButtons() {
 
 function setDifficulty(level) {
   difficulty = level;
+  stopTurnTimer();
   syncDifficultyButtons();
 }
 
@@ -370,11 +426,13 @@ document.getElementById('start-btn').addEventListener('click', () => {
 
 document.getElementById('draw-btn').addEventListener('click', () => {
   if (!playerTurn || gameOver) return;
+  stopTurnTimer();
   drawCards('player', 1);
   const drawn = playerHand[playerHand.length - 1];
   if (drawn && cardCanPlay(drawn)) {
     setMessage('You drew a card. You may play it if it matches!');
     renderGame();
+    startTurnTimer();
     return;
   }
   setMessage("You drew a card — no match. CPU's turn.");
